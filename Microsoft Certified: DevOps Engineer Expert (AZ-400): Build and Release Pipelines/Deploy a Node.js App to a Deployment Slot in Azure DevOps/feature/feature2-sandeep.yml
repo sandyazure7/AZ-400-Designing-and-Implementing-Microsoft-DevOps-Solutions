@@ -23,18 +23,14 @@ variables:
       value: 'ServiceConnection'   
 
   - name: 'RESOURCE_GROUP'    
-    value: '460-3d9b6a2a-deploy-a-node-js-app-to-a-deployment'
+    value: '460-e8d9e74e-deploy-a-node-js-app-to-a-deployment'
 
   - name: 'APPSERVICE_APP_NAME'
     ${{ if eq(parameters['Environment'], 'nonprod') }}: 
-        value: 'webappbq7y5xudo2ml6'
+        value: 'webapptzqzpqt27iomw'
     ${{ if eq(parameters['Environment'], 'prod') }}:
-        value: 'webappbq7y5xudo2ml6'
-
-  - name: webAppName
-    value: $(APPSERVICE_APP_NAME)
-
-
+        value: 'webapptzqzpqt27iomw'
+        
 stages:
 - stage: Build
   displayName: Build stage
@@ -79,7 +75,7 @@ stages:
   jobs:
   - deployment: Deploy
     displayName: Deploy
-    environment: $(webAppName)
+    environment: $(APPSERVICE_APP_NAME)
     pool:
       name: 'Default'
     strategy:
@@ -91,7 +87,7 @@ stages:
             inputs:
               azureSubscription: $(SUBSCRIPTION)
               appType: webAppLinux
-              appName: $(webAppName)
+              appName: $(APPSERVICE_APP_NAME)
               runtimeStack: 'NODE|8.0'
               deployToSlotOrASE: true
               SlotName: 'dev'
@@ -102,7 +98,6 @@ stages:
             inputs:
               azureSubscription: $(SUBSCRIPTION)
               Action: 'Swap Slots'
-              WebAppName: $(webAppName)
-              ResourceGroupName: $(resourceGroup)
+              WebAppName: $(APPSERVICE_APP_NAME)
+              ResourceGroupName: $(RESOURCE_GROUP)
               SourceSlot: 'dev'
-
