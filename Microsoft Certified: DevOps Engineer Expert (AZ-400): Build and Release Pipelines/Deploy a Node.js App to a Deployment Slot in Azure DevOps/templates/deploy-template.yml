@@ -1,1 +1,49 @@
+parameters:
+  - name: Environment
+    displayName: Deployment Environment
+    type: string 
+    default: nonprod
+    values:
+    - nonprod
+    - prod
 
+stages:
+  - stage: Deploy
+    displayName: Deploy Job
+    jobs:
+      - deployment: Deploy
+        displayName: Deploy Job
+        environment: ${{ parameters.environment }}
+        pool:
+          name: 'Default'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadBuildArtifacts@0
+                  displayName: 'Download Build Artifact'
+                  inputs:
+                    buildType: 'current'
+                    artifactName: 'drop'
+                    targetPath: '$(Pipeline.Workspace)/drop'
+
+                - task: AzureWevApp@1
+                  displayName: 'Deploy to Azure Web App'
+                  inputs:
+                    azureSubscription: $(SUBSCRIPTION)
+                    appType: webAppLinux
+                    appName: $(APP_SERVICE_NAME)
+                    runtimeStack: 'NODE|18.0'
+                    DeployToSlot0rASE: true
+                    SlotName: 'dev'
+                    package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
+                    startUpCommand: 'npm run start'
+
+                - task: AzureAppServiceManage@0
+                  displayName: 'Swap Slot'
+                  inputs:
+                    azureSubscription: $(SUBSCRIPTION)
+                    Action: 'Swap Slots'
+                    webAppName: $(APP_SERVICE_APP_NAME)
+                    ResourceGroupName: $(RSEOURCE_GROUP)
+                    SourceSlot: 'dev'
