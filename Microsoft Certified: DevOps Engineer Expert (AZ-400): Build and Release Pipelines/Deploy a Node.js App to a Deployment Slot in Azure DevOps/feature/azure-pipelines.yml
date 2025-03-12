@@ -3,10 +3,6 @@
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
-# Node.js Express Web App to Linux on Azure
-# Build a Node.js Express app and deploy it to Azure as a Linux web app.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
 trigger:
   branches:
@@ -23,10 +19,17 @@ parameters:
       - prod
 
 variables:
-  SUBSCRIPTION: ${{ parameters.environment == 'nonprod' && 'ServiceConnection1' || 'ServiceConnection2' }}
-  RESOURCE_GROUP: '460-ebcc6e24-deploy-a-node-js-app-to-a-deployment'
-  APP_SERVICE_APP_NAME: ${{ parameters.environment == 'nonprod' && 'webappwpwsszwb23aca' || 'webappwpwsszwb23aca' }}
-  SLOT_NAME: 'dev'
+  - name: SUBSCRIPTION
+    value: 'ServiceConnection1'
+
+  - name: RESOURCE_GROUP
+    value: '460-ebcc6e24-deploy-a-node-js-app-to-a-deployment'
+
+  - name: APP_SERVICE_APP_NAME
+    value: 'webappwpwsszwb23aca'
+
+  - name: SLOT_NAME
+    value: 'dev'
 
 stages:
   - stage: Build
@@ -67,3 +70,5 @@ stages:
   - template: templates/deploy-template.yml
     parameters:
       environment: ${{ parameters.environment }}          
+
+      
